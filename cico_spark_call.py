@@ -204,7 +204,7 @@ def get_spark_call_clients(incoming_msg, rettype):
 
         for n in userdata["numbers"]:
             num = userdata["numbers"][n]
-            retval += "<strong>Numbers:</strong><br>"
+            retval += "<br><strong>Numbers:</strong><br>"
             if "external" in num:
                 retval += num["external"] + " (x" + num["internal"] + ")\n"
             else:
