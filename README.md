@@ -35,7 +35,7 @@ pip install ciscosparkbot
 git clone https://github.com/joshand/CICO.git
 ```
 
-# ngrok - Skip this step if you already have an Internet reachable web-server
+## ngrok - Skip this step if you already have an Internet reachable web-server
 
 ngrok will make easy for you to develop your code with a live bot.
 
@@ -68,11 +68,11 @@ HTTP Requests
 POST /                         200 OK
 ```
 
-## Spark Call Integration
+# Meraki Integration
 
 ---
 
-# Obtain your Meraki API Token
+## Obtain your Meraki API Token
 
 1. Log in to the Meraki Dashboard. Choose your organization if prompted to do so.
 
@@ -84,7 +84,7 @@ POST /                         200 OK
 
 ![meraki-my-key](images/meraki_key.png)
 
-# Obtain your Meraki Organization ID
+## Obtain your Meraki Organization ID
 
 You can use Postman to run this GET:
 
@@ -102,13 +102,13 @@ You should see output with one or more networks like this:
 
 Copy your Meraki organization ID to use for the environment variables below.
 
-## Spark Call Integration
+# Spark Call Integration
 
 ---
 Note: The Spark Call APIs being used have not been officially published. As such, they are subject to change at any time without notification.
 ---
 
-# Verify Spark Call Administrator Privileges
+## Verify Spark Call Administrator Privileges
 
 Go to https://admin.ciscospark.com, and log in with a user that has Full Admin rights to your Spark Call organization.
 
@@ -122,7 +122,7 @@ Click "Roles and Security"
 
 Ensure that your Admin user has "Full administrator privileges" marked
 
-# Obtain your Spark Call Administrator Token
+## Obtain your Spark Call Administrator Token
 
 Go to https://developer.ciscospark.com, and log in with a user that has Full Admin rights to your Spark Call organization.
 
