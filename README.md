@@ -4,17 +4,17 @@ Cisco Infrastructure Chat Ops
 This bot leverages the Spark Bot framework found [here](https://github.com/imapex/ciscosparkbot).
 
 # Contents
-[Prerequisites](#prerequisites)
-[Installation](#installation)
-    [ngrok](#ngrok)
-[Meraki Integration](#meraki)
-    [Enable API Access](#meraki-api-access)
-    [Get API Token](#meraki-api-token)
-    [Get Organization ID](#meraki-org-id)
-[Spark Call Integration](#sparkcall)
-    [Verify Admin Rights](#sparkcall-admin)
-    [Get API Token](#sparkcall-token)
-[Usage](#usage)
+*[Prerequisites](#prerequisites)
+*[Installation](#installation)
+  *[ngrok](#ngrok)
+*[Meraki Integration](#meraki)
+  *[Enable API Access](#meraki-api-access)
+  *[Get API Token](#meraki-api-token)
+  *[Get Organization ID](#meraki-org-id)
+*[Spark Call Integration](#sparkcall)
+  *[Verify Admin Rights](#sparkcall-admin)
+  *[Get API Token](#sparkcall-token)
+*[Usage](#usage)
 
 
 # Prerequisites<a name="prerequisites"/>
