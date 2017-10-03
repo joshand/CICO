@@ -39,7 +39,6 @@ def get_clients(incoming_msg):
                 if not isinstance(cli, str):
                     if cli["description"] == client_id and "switchport" in cli:
                         retmsg += "<i>Computer Name:</i> <a href='https://dashboard.meraki.com/manage/usage/list#c=" + cli["id"] + "'>" + cli["dhcpHostname"] + "</a><br>"
-
                         if net in newsmlist:
                             if "devices" in newsmlist[net]:
                                 if cli["mac"] in newsmlist[net]["devices"]:
