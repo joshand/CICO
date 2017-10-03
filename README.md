@@ -72,6 +72,16 @@ POST /                         200 OK
 
 ---
 
+## Enable your Meraki organization for API Access
+
+1. Log in to the Meraki Dashboard. Choose your organization if prompted to do so.
+
+2. On the left Navigation bar, go to Organization and select Settings.
+
+3. Scroll down to the Dashboard API Access section, and turn on API Access.
+
+![meraki-enable-api-access](images/meraki_enable_api_access.png)
+
 ## Obtain your Meraki API Token
 
 1. Log in to the Meraki Dashboard. Choose your organization if prompted to do so.
