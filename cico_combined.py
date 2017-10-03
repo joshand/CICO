@@ -38,7 +38,7 @@ def get_clients(incoming_msg):
             for cli in netlist[net]["devices"][dev]["clients"]:
                 if not isinstance(cli, str):
                     if cli["description"] == client_id and "switchport" in cli:
-                        retmsg += "<i>Computer Name:</i> " + cli["dhcpHostname"] + "<br>"
+                        retmsg += "<i>Computer Name:</i> <a href='https://dashboard.meraki.com/manage/usage/list#c=" + cli["id"] + "'>" + cli["dhcpHostname"] + "</a><br>"
 
                         if net in newsmlist:
                             if "devices" in newsmlist[net]:
@@ -51,16 +51,16 @@ def get_clients(incoming_msg):
                         retmsg += "<i>MAC:</i> " + cli["mac"] + "<br>"
                         retmsg += "<i>VLAN:</i> " + str(cli["vlan"]) + "<br>"
                         devbase = netlist[net]["devices"][dev]["info"]
-                        retmsg += "<i>Connected To:</i> " + devbase["name"] + " (" + devbase["model"] + "), Port " + str(cli["switchport"]) + "<br>"
+                        retmsg += "<i>Connected To:</i> <a href='https://dashboard.meraki.com/manage/nodes/show/" + devbase["mac"] + "'>" + devbase["name"] + "</a> (" + devbase["model"] + "), Port " + str(cli["switchport"]) + "<br>"
                     elif cli["mac"] in sclients["phones"] and "switchport" in cli:
                         scbase = sclients["phones"][cli["mac"]]
                         retsc += scbase["description"] + " (<i>" + scbase["registrationStatus"] + "</i>)<br>"
-                        retsc += "<i>Device Name:</i> " + cli["dhcpHostname"] + "<br>"
+                        retsc += "<i>Device Name:</i> <a href='https://dashboard.meraki.com/manage/usage/list#c=" + cli["id"] + "'>" + cli["dhcpHostname"] + "</a><br>"
                         retsc += "<i>IP:</i> " + cli["ip"] + "<br>"
                         retsc += "<i>MAC:</i> " + cli["mac"] + "<br>"
                         retsc += "<i>VLAN:</i> " + str(cli["vlan"]) + "<br>"
                         devbase = netlist[net]["devices"][dev]["info"]
-                        retsc += "<i>Connected To:</i> " + devbase["name"] + " (" + devbase["model"] + "), Port " + str(cli["switchport"]) + "<br>"
+                        retsc += "<i>Connected To:</i> <a href='https://dashboard.meraki.com/manage/nodes/show/" + devbase["mac"] + "'>" + devbase["name"] + "</a> (" + devbase["model"] + "), Port " + str(cli["switchport"]) + "<br>"
 
     for n in sclients["numbers"]:
         num = sclients["numbers"][n]

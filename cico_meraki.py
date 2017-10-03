@@ -18,24 +18,47 @@ def get_meraki_networks():
     return netjson
 
 
-def collect_url_list(jsondata, baseurl, attr1, attr2):
+def collect_url_list(jsondata, baseurl, attr1, attr2, battr1, battr2):
     # Iterates the jsondata list/dictionary and pulls out attributes to generate a list of URLs
     # jsondata  :   list of dictionaries or dictionary of lists
-    # baseurl   :   base url to use. place a $ to show where to substitute
+    # baseurl   :   base url to use. place a $1 to show where to substitute
     # attr1     :   when using a list of dictionaries, this is the key that will be retrieved from each dict in the list
     #               when using a dictionary of lists, this is the key where all of the lists will be found
     # attr2     :   (optional) pass "" to disable
     #               when using a dictionary of lists, this is the key that will be retrieved from each dict in each list
+    # These are both optional, and used if a second substitution is needed ($2)
+    # battr1    :   (optional) when using a list of dictionaries, this is the key that will be retrieved from each dict
+    #               in the list when using a dictionary of lists, this is the key where all of the lists will be found
+    # battr2    :   (optional) pass "" to disable
+    #               when using a dictionary of lists, this is the key that will be retrieved from each dict in each list
     urllist = []
+    sub1 = ""
     for jsonitem in jsondata:
         if attr2 == "":
             if attr1 in jsonitem:
-                urllist.append(baseurl.replace("$", jsonitem[attr1]))
+                urllist.append(baseurl.replace("$1", jsonitem[attr1]))
         else:
             if attr1 in jsondata[jsonitem]:
                 for jsonitem2 in jsondata[jsonitem][attr1]:
-                    urllist.append(baseurl.replace("$", jsonitem2[attr2]))
+                    if isinstance(jsonitem2, str):
+                        if jsonitem2 == attr2:
+                            if battr1 == "":
+                                urllist.append(baseurl.replace("$1", jsondata[jsonitem][attr1][jsonitem2]))
+                            else:
+                                sub1 = jsondata[jsonitem][attr1][jsonitem2]
+                    else:
+                        if battr1 == "":
+                            urllist.append(baseurl.replace("$1", jsonitem2[attr2]))
+                        else:
+                            sub1 = jsonitem2[attr2]
 
+            if battr1 in jsondata[jsonitem]:
+                for jsonitem2 in jsondata[jsonitem][battr1]:
+                    if isinstance(jsonitem2, str):
+                        if jsonitem2 == battr2:
+                            urllist.append(baseurl.replace("$1", sub1).replace("$2", jsondata[jsonitem][battr1][jsonitem2]))
+                    else:
+                        urllist.append(baseurl.replace("$1", sub1).replace("$2", jsonitem2[battr2]))
     return urllist
 
 
@@ -68,7 +91,8 @@ def do_multi_get(url_list, comp_list, comp_id1, comp_id2, comp_url_idx, comp_key
 
     content_dict = {}
     for itemlist in grequests.imap(rs, stream=False):
-        inlist = json.loads(itemlist.content.decode("utf-8"))
+        icontent = itemlist.content.decode("utf-8")
+        inlist = json.loads(icontent)
         if len(inlist) > 0:
             # Use the URL index if it was specified, otherwise use the comparision key
             if comp_url_idx >= 0:
@@ -163,15 +187,17 @@ def do_split_networks(in_netlist):
     devdict = {}
 
     for net in in_netlist:
-        base_name = in_netlist[net]["info"]["name"]
-        for dev in in_netlist[net]["devices"]:
+        base_name = in_netlist[net]["info"]["info"]["name"]
+        for dev in in_netlist[net]["info"]["devices"]:
             thisdevtype = decode_model(dev["model"])
+            thisupl = {"uplinks": in_netlist[net]["devices"][dev["serial"]]["uplinks"]}
             newname = base_name + " - " + thisdevtype
+            newdev = {**dev, **thisupl}
 
             if newname in devdict:
-                devdict[newname].append(dev)
+                devdict[newname].append(newdev)
             else:
-                devdict[newname] = [dev]
+                devdict[newname] = [newdev]
 
     return devdict
 
@@ -180,21 +206,36 @@ def get_meraki_health(incoming_msg, rettype):
     # Get a list of all networks associated with the specified organization
     netjson = get_meraki_networks()
     # Parse list of networks to extract/create URLs needed to get list of devices
-    urlnet = collect_url_list(netjson, "https://dashboard.meraki.com/api/v0/networks/$/devices", "id", "")
+    urlnet = collect_url_list(netjson, "https://dashboard.meraki.com/api/v0/networks/$1/devices", "id", "", "", "")
     # Get a list of all devices associated with the networks associated to the organization
     netlist = do_multi_get(urlnet, netjson, "id", "", -1, "networkId", "devices")
+    # Get uplink status of devices
+    urlnetup = collect_url_list(netlist, "https://dashboard.meraki.com/api/v0/networks/$1/devices/$2/uplink", "info", "id", "devices", "serial")
+    netlistup = do_multi_get(urlnetup, netlist, "devices", "serial", 8, "", "uplinks")
     # Split network lists up by device type
-    newnetlist = do_split_networks(netlist)
+    newnetlist = do_split_networks(netlistup)
 
     totaldev = 0
+    offdev = 0
+    totaloffdev = 0
+    devicon = ""
     retmsg = "<h3>Meraki Details:</h3>"
     retmsg += "<a href='https://dashboard.meraki.com/'>Meraki Dashboard</a><br><ul>"
     for net in sorted(newnetlist):
-        totaldev += len(newnetlist[net])
-        retmsg += "<li>Network '" + net + "' has " + str(len(newnetlist[net])) + " device(s).</li>"
-    retmsg += "</ul><b>There are a total of " + str(totaldev) + " device(s).</b>"
+        for dev in newnetlist[net]:
+            for upl in dev["uplinks"]:
+                if upl["interface"] == "WAN 1":
+                    if upl["status"] != "Active":
+                        offdev += 1
+                        totaloffdev += 1
+                        devicon = chr(0x2757) + chr(0xFE0F)
 
-    print(retmsg)
+        totaldev += len(newnetlist[net])
+        retmsg += "<li>Network '" + net + "' has " + str(offdev) + " device(s) offline out of " + str(len(newnetlist[net])) + " device(s)." + devicon + "</li>"
+        offdev = 0
+        devicon = ""
+    retmsg += "</ul><b>" + str(totaloffdev) + " device(s) offline out of a total of " + str(totaldev) + " device(s).</b>"
+
     return retmsg
 
 
@@ -204,40 +245,40 @@ def get_meraki_clients(incoming_msg, rettype):
     # Get a list of all networks associated with the specified organization
     netjson = get_meraki_networks()
     # Parse list of networks to extract/create URLs needed to get list of devices
-    urlnet = collect_url_list(netjson, "https://dashboard.meraki.com/api/v0/networks/$/devices", "id", "")
-    smnet = collect_url_list(netjson, "https://dashboard.meraki.com/api/v0/networks/$/sm/devices/", "id", "")
+    urlnet = collect_url_list(netjson, "https://dashboard.meraki.com/api/v0/networks/$1/devices", "id", "", "", "")
+    smnet = collect_url_list(netjson, "https://dashboard.meraki.com/api/v0/networks/$1/sm/devices/", "id", "", "", "")
     # Get a list of all devices associated with the networks associated to the organization
     netlist = do_multi_get(urlnet, netjson, "id", "", -1, "networkId", "devices")
     smlist = do_multi_get(smnet, [], "id", "", 6, "", "")
     newsmlist = do_sort_smclients(smlist)
     # Parse list of devices to extract/create URLs needed to get list of clients
-    urldev = collect_url_list(netlist, "https://dashboard.meraki.com/api/v0/devices/$/clients?timespan=86400", "devices", "serial")
+    urldev = collect_url_list(netlist, "https://dashboard.meraki.com/api/v0/devices/$1/clients?timespan=86400", "devices", "serial", "", "")
     # Get a list of all clients associated with the devices associated to the networks associated to the organization
     netlist = do_multi_get(urldev, netlist, "devices", "serial", 6, "", "clients")
 
     if rettype == "json":
         return {"client": netlist, "sm": newsmlist}
     else:
-        retmsg = "###Associated Clients:\n"
+        retmsg = "<h3>Associated Clients:</h3>"
         for net in sorted(netlist):
             for dev in netlist[net]["devices"]:
                 for cli in netlist[net]["devices"][dev]["clients"]:
                     if not isinstance(cli, str):
                         if cli["description"] == client_id and "switchport" in cli:
-                            retmsg += "_Computer Name:_ " + cli["dhcpHostname"] + "<br>"
+                            retmsg += "<i>Computer Name:</i> <a href='https://dashboard.meraki.com/manage/usage/list#c=" + cli["id"] + "'>" + cli["dhcpHostname"] + "</a><br>"
 
                             if net in newsmlist:
                                 if "devices" in newsmlist[net]:
                                     if cli["mac"] in newsmlist[net]["devices"]:
                                         smbase = newsmlist[net]["devices"][cli["mac"]]
-                                        retmsg += "_Model:_ " + smbase["systemModel"] + "<br>"
-                                        retmsg += "_OS:_ " + smbase["osName"] + "<br>"
+                                        retmsg += "<i>Model:</i> " + smbase["systemModel"] + "<br>"
+                                        retmsg += "<i>OS:</i> " + smbase["osName"] + "<br>"
 
-                            retmsg += "_IP:_ " + cli["ip"] + "<br>"
-                            retmsg += "_MAC:_ " + cli["mac"] + "<br>"
-                            retmsg += "_VLAN:_ " + str(cli["vlan"]) + "<br>"
+                            retmsg += "<i>IP:</i> " + cli["ip"] + "<br>"
+                            retmsg += "<i>MAC:</i> " + cli["mac"] + "<br>"
+                            retmsg += "<i>VLAN:</i> " + str(cli["vlan"]) + "<br>"
                             devbase = netlist[net]["devices"][dev]["info"]
-                            retmsg += "_Connected To:_ " + devbase["name"] + " (" + devbase["model"] + "), Port " + str(cli["switchport"]) + "<br>"
+                            retmsg += "<i>Connected To:</i> <a href='https://dashboard.meraki.com/manage/nodes/show/" + devbase["mac"] + "'>" + devbase["name"] + "</a> (" + devbase["model"] + "), Port " + str(cli["switchport"]) + "<br>"
 
         return retmsg
 

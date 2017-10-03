@@ -68,6 +68,10 @@ HTTP Requests
 POST /                         200 OK
 ```
 
+## Spark Call Integration
+
+---
+
 # Obtain your Meraki API Token
 
 1. Log in to the Meraki Dashboard. Choose your organization if prompted to do so.
@@ -97,6 +101,12 @@ You should see output with one or more networks like this:
 ```
 
 Copy your Meraki organization ID to use for the environment variables below.
+
+## Spark Call Integration
+
+---
+Note: The Spark Call APIs being used have not been officially published. As such, they are subject to change at any time without notification.
+---
 
 # Verify Spark Call Administrator Privileges
 
