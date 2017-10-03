@@ -16,8 +16,8 @@ This bot leverages the Spark Bot framework found [here](https://github.com/imape
     [Get API Token](#sparkcall-token)
 [Usage](#usage)
 
-<a name="prerequisites"/>
-# Prerequisites
+
+# Prerequisites<a name="prerequisites"/>
 
 If you don't already have a Cisco Spark account, go ahead and register for one.  They are free.
 You'll need to start by adding your bot to the Cisco Spark website.
@@ -38,8 +38,7 @@ You'll need to start by adding your bot to the Cisco Spark website.
 
 ![copy-token](images/copytoken.png)
 
-<a name="installation"/>
-# Installation
+# Installation<a name="installation"/>
 
 Create a virtualenv and install the module
 
@@ -50,8 +49,7 @@ pip install ciscosparkbot
 git clone https://github.com/joshand/CICO.git
 ```
 
-<a name="ngrok"/>
-## ngrok - Skip this step if you already have an Internet reachable web-server
+## ngrok - Skip this step if you already have an Internet reachable web-server<a name="ngrok"/>
 
 ngrok will make easy for you to develop your code with a live bot.
 
@@ -84,12 +82,11 @@ HTTP Requests
 POST /                         200 OK
 ```
 
-<a name="meraki"/>
-# Meraki Integration
+# Meraki Integration<a name="meraki"/>
 
 ---
-<a name="meraki-api-access"/>
-## Enable your Meraki organization for API Access
+
+## Enable your Meraki organization for API Access<a name="meraki-api-access"/>
 
 1. Log in to the Meraki Dashboard. Choose your organization if prompted to do so.
 
@@ -99,8 +96,7 @@ POST /                         200 OK
 
 ![meraki-enable-api-access](images/meraki_enable_api_access.png)
 
-<a name="meraki-api-token"/>
-## Obtain your Meraki API Token
+## Obtain your Meraki API Token<a name="meraki-api-token"/>
 
 1. Log in to the Meraki Dashboard. Choose your organization if prompted to do so.
 
@@ -112,8 +108,7 @@ POST /                         200 OK
 
 ![meraki-my-key](images/meraki_key.png)
 
-<a name="meraki-org-id"/>
-## Obtain your Meraki Organization ID
+## Obtain your Meraki Organization ID<a name="meraki-org-id"/>
 
 You can use Postman to run this GET:
 
@@ -131,15 +126,13 @@ You should see output with one or more networks like this:
 
 Copy your Meraki organization ID to use for the environment variables below.
 
-<a name="sparkcall"/>
-# Spark Call Integration
+# Spark Call Integration<a name="sparkcall"/>
 
 ---
 Note: The Spark Call APIs being used have not been officially published. As such, they are subject to change at any time without notification.
 ---
 
-<a name="sparkcall-admin"/>
-## Verify Spark Call Administrator Privileges
+## Verify Spark Call Administrator Privileges<a name="sparkcall-admin"/>
 
 Go to https://admin.ciscospark.com, and log in with a user that has Full Admin rights to your Spark Call organization.
 
@@ -153,8 +146,7 @@ Click "Roles and Security"
 
 Ensure that your Admin user has "Full administrator privileges" marked
 
-<a name="sparkcall-token"/>
-## Obtain your Spark Call Administrator Token
+## Obtain your Spark Call Administrator Token<a name="sparkcall-token"/>
 
 Go to https://developer.ciscospark.com, and log in with a user that has Full Admin rights to your Spark Call organization.
 
@@ -162,8 +154,7 @@ In the upper right, click the user portrait, then click the "Copy" button to cop
 
 ![spark_get_token](images/spark_get_token.png)
 
-<a name="usage"/>
-# Usage
+# Usage<a name="usage"/>
 
 The easiest way to use this module is to set a few environment variables. On Windows, use "set" instead of "export". See the ngrok section below if you do not have a web server already facing the Internet.
 
