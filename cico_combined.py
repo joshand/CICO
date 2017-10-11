@@ -2,7 +2,6 @@ import cico_meraki
 import cico_spark_call
 import cico_umbrella
 import cico_common
-import json
 
 
 def get_health(incoming_msg):

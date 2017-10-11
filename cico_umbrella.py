@@ -1,5 +1,4 @@
 import os
-import json
 import gzip
 import io
 from stat import S_ISREG, S_ISDIR, ST_CTIME, ST_MODE

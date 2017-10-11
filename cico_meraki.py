@@ -26,7 +26,7 @@ def get_meraki_networks():
 def meraki_create_dashboard_link(linktype, linkname, displayval, urlappend):
     shownet = displayval
     if meraki_dashboard_map:
-        mapjson = json.loads(meraki_dashboard_map)
+        mapjson = json.loads(meraki_dashboard_map.replace("'", '"'))
         if linktype in mapjson:
             if linkname in mapjson[linktype]:
                 shownet = "<a href='" + mapjson[linktype][linkname]["baseurl"] + urlappend + "'>" + displayval + "</a>"

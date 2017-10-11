@@ -11,9 +11,16 @@ This bot leverages the Spark Bot framework found [here](https://github.com/imape
   - [Enable API Access](#meraki-api-access)
   - [Get API Token](#meraki-api-token)
   - [Get Organization ID](#meraki-org-id)
+  - [Get Dashboard Links (Optional)](#meraki-dashboard-links)
 - [Spark Call Integration](#sparkcall)
   - [Verify Admin Rights](#sparkcall-admin)
   - [Get API Token](#sparkcall-token)
+- [Umbrella Integration](#umbrella)
+  - [Create S3 Bucket](#umbrella-s3)
+  - [Enable S3 Log Export](#umbrella-export)
+  - [Create S3 API User](#umbrella-s3-api)
+  - [Set S3 Lifecycle](#umbrella-s3-retention)
+  - [Run S3 Log Import](#umbrella-s3-import)
 - [Usage](#usage)
 
 
@@ -126,6 +133,17 @@ You should see output with one or more networks like this:
 
 Copy your Meraki organization ID to use for the environment variables below.
 
+## Get Dashboard Links (Optional)<a name="meraki-dashboard-links"/>
+
+The bot can be configured to show links on certain elements (clients, devices, networks) to cross-launch back into the Meraki dashboard. However, this data is not currently exposed via the Meraki API. If you would like to create the required linkages (which is an optional step as the bot will function without it), utilize the meraki_dashboard_link_parser.py script to do so. This script will need to be re-run any time you make changes to your Meraki network or device configuration. In order to run this script, you will first need to set the following environment variables:
+```
+export MERAKI_HTTP_USERNAME=<Meraki Dashboard username>
+export MERAKI_HTTP_PASSWORD=<Meraki Dashboard password>
+export MERAKI_API_TOKEN=<Meraki Dashboard API token>
+export MERAKI_ORG=<Meraki Dashboard Organization ID>
+```
+If you are running the bot (app.py) from the same session that you are running meraki_dashboard_link_parser.py from, the MERAKI_DASHBOARD_MAP environment variable will automatically be populated with the mapping data. If you are running them in seperate environments, ensure that you take the output from the meraki_dashboard_link_parser.py script and set your environment variable (MERAKI_DASHBOARD_MAP) with it.
+
 # Spark Call Integration<a name="sparkcall"/>
 
 ---
@@ -153,6 +171,63 @@ Go to https://developer.ciscospark.com, and log in with a user that has Full Adm
 In the upper right, click the user portrait, then click the "Copy" button to copy your Token for the environment variables below.
 
 ![spark_get_token](images/spark_get_token.png)
+
+# Umbrella Integration<a name="umbrella"/>
+
+## Create S3 Bucket<a name="umbrella-s3"/>
+
+Please reference the Umbrella documentation for information on how to set up your S3 bucket.
+[https://support.umbrella.com/hc/en-us/articles/231248448-Cisco-Umbrella-Log-Management-in-Amazon-S3](https://support.umbrella.com/hc/en-us/articles/231248448-Cisco-Umbrella-Log-Management-in-Amazon-S3)
+
+## Enable S3 Log Export<a name="umbrella-export"/>
+
+Please reference the Umbrella documentation for information on how to enable S3 Log Export.
+[https://support.umbrella.com/hc/en-us/articles/231248448-Cisco-Umbrella-Log-Management-in-Amazon-S3](https://support.umbrella.com/hc/en-us/articles/231248448-Cisco-Umbrella-Log-Management-in-Amazon-S3)
+
+## Create S3 API User<a name="umbrella-s3-api"/>
+
+Access Amazon Identiy and Access Management (IAM) here:
+[https://console.aws.amazon.com/iam](https://console.aws.amazon.com/iam)
+
+![umbrella_iam](images/aws_iam.png)
+
+Click on the link for Users: 1 (or, whatever quantity of users you have defined)
+
+![umbrella_users](images/aws_iam_users.png)
+
+Click Add User
+
+![umbrella_adduser](images/aws_iam_adduser.png)
+
+Give your user a name, and check the box for "Programmatic access"
+
+![umbrella_adduser_perm](images/aws_iam_permissions.png)
+
+Click the button for "Attach existing policies directly", then search for or scroll to AmazonS3ReadOnlyAccess, and check the box next to that. Then click Next.
+
+![umbrella_adduser_rev](images/aws_iam_review.png)
+
+Verify the settings, then click Create user.
+
+![umbrella_adduser_ver](images/aws_iam_complete.png)
+
+## Set S3 Lifecycle<a name="umbrella-s3-retention"/>
+
+In Amazon AWS, access the bucket you are utilizing for Umbrella log exports. Click on the Management tab after selecting the bucket.
+
+![umbrella_lifecycle](images/aws_s3_lifecycle.png)
+
+Click "Add lifecycle rule"
+
+![umbrella_lifecycle1](images/aws_s3_lifecycle-1.png)
+
+Give your lifecycle a rule, then click through until the Expiration tab.
+
+![umbrella_lifecycle2](images/aws_s3_lifecycle-2.png)
+
+Check "Current version", check "Expire current version of object", and set the duration to 1 day. Click through and save the lifecycle rule.
+
+## Run S3 Log Import<a name="umbrella-s3-import"/>
 
 # Usage<a name="usage"/>
 
