@@ -23,7 +23,7 @@ def get_meraki_networks():
     return netjson
 
 
-def meraki_create_dashboard_link(linktype, linkname, displayval, urlappend):
+def meraki_create_dashboard_link(linktype, linkname, displayval, urlappend, linknameid):
     shownet = displayval
     if meraki_dashboard_map:
         mapjson = json.loads(meraki_dashboard_map.replace("'", '"'))
@@ -31,12 +31,18 @@ def meraki_create_dashboard_link(linktype, linkname, displayval, urlappend):
             if linkname in mapjson[linktype]:
                 shownet = "<a href='" + mapjson[linktype][linkname]["baseurl"] + urlappend + "'>" + displayval + "</a>"
 
+    if shownet == displayval and linktype == "devices" and linknameid == 0:
+        shownet = "<a href='https://dashboard.meraki.com/manage/nodes/show/" + linkname + "'>" + displayval + "</a>"
+
     return shownet
 
 def meraki_dashboard_client_mod(netlink, cliid, clidesc):
     showcli = clidesc
-    if netlink.find("/manage") >= 0:
-        showcli = netlink.split("/manage")[0] + "/manage/usage/list#c=" + cliid + "'>" + clidesc + "</a>"
+    if netlink:
+        if netlink.find("/manage") >= 0:
+            showcli = netlink.split("/manage")[0] + "/manage/usage/list#c=" + cliid + "'>" + clidesc + "</a>"
+    else:
+        showcli = "<a href='https://dashboard.meraki.com/manage/usage/list#c=" + cliid + "'>" + clidesc + "</a>"
 
     return showcli
 
@@ -254,7 +260,7 @@ def get_meraki_health(incoming_msg, rettype):
                         devicon = chr(0x2757) + chr(0xFE0F)
 
         totaldev += len(newnetlist[net])
-        shownet = meraki_create_dashboard_link("networks", net, net, "")
+        shownet = meraki_create_dashboard_link("networks", net, net, "", 0)
         retmsg += "<li>Network '" + shownet + "' has " + str(offdev) + " device(s) offline out of " + str(len(newnetlist[net])) + " device(s)." + devicon + "</li>"
         offdev = 0
         devicon = ""
@@ -290,8 +296,8 @@ def get_meraki_clients(incoming_msg, rettype):
                     if not isinstance(cli, str):
                         if cli["description"] == client_id and "switchport" in cli:
                             devbase = netlist[net]["devices"][dev]["info"]
-                            showdev = meraki_create_dashboard_link("devices", devbase["mac"], devbase["name"], "?timespan=86400")
-                            showport = meraki_create_dashboard_link("devices", devbase["mac"], str(cli["switchport"]), "/ports/" + str(cli["switchport"]) + "?timespan=86400")
+                            showdev = meraki_create_dashboard_link("devices", devbase["mac"], devbase["name"], "?timespan=86400", 0)
+                            showport = meraki_create_dashboard_link("devices", devbase["mac"], str(cli["switchport"]), "/ports/" + str(cli["switchport"]) + "?timespan=86400", 1)
                             showcli = meraki_dashboard_client_mod(showdev, cli["id"], cli["dhcpHostname"])
                             retmsg += "<i>Computer Name:</i> " + showcli + "<br>"
 
