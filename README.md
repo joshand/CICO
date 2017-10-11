@@ -188,44 +188,44 @@ Please reference the Umbrella documentation for information on how to enable S3 
 
 Access Amazon Identiy and Access Management (IAM) here:
 [https://console.aws.amazon.com/iam](https://console.aws.amazon.com/iam)
+Click on the link for Users: 1 (or, whatever quantity of users you have defined)
 
 ![umbrella_iam](images/aws_iam.png)
 
-Click on the link for Users: 1 (or, whatever quantity of users you have defined)
+Click Add User
 
 ![umbrella_users](images/aws_iam_users.png)
 
-Click Add User
+Give your user a name, and check the box for "Programmatic access"
 
 ![umbrella_adduser](images/aws_iam_adduser.png)
 
-Give your user a name, and check the box for "Programmatic access"
-
-![umbrella_adduser_perm](images/aws_iam_permissions.png)
-
 Click the button for "Attach existing policies directly", then search for or scroll to AmazonS3ReadOnlyAccess, and check the box next to that. Then click Next.
 
-![umbrella_adduser_rev](images/aws_iam_review.png)
+![umbrella_adduser_perm](images/aws_iam_adduser_permissions.png)
 
 Verify the settings, then click Create user.
 
-![umbrella_adduser_ver](images/aws_iam_complete.png)
+![umbrella_adduser_rev](images/aws_iam_adduser_review.png)
+
+Save your Access Key ID and Secret Access Key to add to the required Environment Variables.
+
+![umbrella_adduser_ver](images/aws_iam_adduser_complete.png)
 
 ## Set S3 Lifecycle<a name="umbrella-s3-retention"/>
 
 In Amazon AWS, access the bucket you are utilizing for Umbrella log exports. Click on the Management tab after selecting the bucket.
+Click "Add lifecycle rule"
 
 ![umbrella_lifecycle](images/aws_s3_lifecycle.png)
 
-Click "Add lifecycle rule"
+Give your lifecycle a rule, then click through until the Expiration tab.
 
 ![umbrella_lifecycle1](images/aws_s3_lifecycle-1.png)
 
-Give your lifecycle a rule, then click through until the Expiration tab.
+Check "Current version", check "Expire current version of object", and set the duration to 1 day. Click through and save the lifecycle rule.
 
 ![umbrella_lifecycle2](images/aws_s3_lifecycle-2.png)
-
-Check "Current version", check "Expire current version of object", and set the duration to 1 day. Click through and save the lifecycle rule.
 
 ## Run S3 Log Import<a name="umbrella-s3-import"/>
 
@@ -240,7 +240,11 @@ export SPARK_BOT_EMAIL=<your bot email>
 export SPARK_BOT_APP_NAME=<your bot name>
 export MERAKI_API_TOKEN=<Meraki Dashboard API token>
 export MERAKI_ORG=<Meraki Dashboard Organization ID>
+export MERAKI_DASHBOARD_MAP=<Optional, data comes from meraki_dashboard_link_parser.py>
 export SPARK_API_TOKEN=<Spark Call Admin API token>
+export S3_BUCKET=<Amazon S3 bucket name>
+export S3_ACCESS_KEY_ID=<Amazon IAM Access Key ID>
+export S3_SECRET_ACCESS_KEY=<Amazon IAM Secret Access Key>
 ```
 
 Now launch your bot!!
