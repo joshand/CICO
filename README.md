@@ -188,7 +188,7 @@ Please reference the Umbrella documentation for information on how to enable S3 
 
 Access Amazon Identiy and Access Management (IAM) here:
 [https://console.aws.amazon.com/iam](https://console.aws.amazon.com/iam)
-Click on the link for Users: 1 (or, whatever quantity of users you have defined)
+<br>Click on the link for Users: 1 (or, whatever quantity of users you have defined)
 
 ![umbrella_iam](images/aws_iam.png)
 
@@ -215,7 +215,7 @@ Save your Access Key ID and Secret Access Key to add to the required Environment
 ## Set S3 Lifecycle<a name="umbrella-s3-retention"/>
 
 In Amazon AWS, access the bucket you are utilizing for Umbrella log exports. Click on the Management tab after selecting the bucket.
-Click "Add lifecycle rule"
+<br>Click "Add lifecycle rule"
 
 ![umbrella_lifecycle](images/aws_s3_lifecycle.png)
 
