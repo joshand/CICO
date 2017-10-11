@@ -229,9 +229,16 @@ Check "Current version", check "Expire current version of object", and set the d
 
 ## Run S3 Log Import<a name="umbrella-s3-import"/>
 
+The umbrella_log_collector.py script is designed to run every 5 minutes and ensure that your local logs are in sync with the logs that are avaialble in Amazon S3. All logs are sync'd locally in order to provide quick access time to the data. Before running the script, you will need to ensure that the following Environment variables are set:
+```
+export S3_BUCKET=<Amazon S3 bucket name>
+export S3_ACCESS_KEY_ID=<Amazon IAM Access Key ID>
+export S3_SECRET_ACCESS_KEY=<Amazon IAM Secret Access Key>
+```
+
 # Usage<a name="usage"/>
 
-The easiest way to use this module is to set a few environment variables. On Windows, use "set" instead of "export". See the ngrok section below if you do not have a web server already facing the Internet.
+The easiest way to use this module is to set a few environment variables. On Windows, use "set" instead of "export". See the ngrok section below if you do not have a web server already facing the Internet. These are the Environment variables that are required to run the bot itself (app.py):
 
 ```
 export SPARK_BOT_URL=https://mypublicsite.io  *(your public facing webserver, or the forwarding address from ngrok)*
@@ -242,11 +249,10 @@ export MERAKI_API_TOKEN=<Meraki Dashboard API token>
 export MERAKI_ORG=<Meraki Dashboard Organization ID>
 export MERAKI_DASHBOARD_MAP=<Optional, data comes from meraki_dashboard_link_parser.py>
 export SPARK_API_TOKEN=<Spark Call Admin API token>
-export S3_BUCKET=<Amazon S3 bucket name>
-export S3_ACCESS_KEY_ID=<Amazon IAM Access Key ID>
-export S3_SECRET_ACCESS_KEY=<Amazon IAM Secret Access Key>
 ```
 
 Now launch your bot!!
 
 `python app.py`
+
+If you are in a 1:1 space with your bot, you can simply type either /health or /check <username>. If you are in a group, you will first need to @mention your bot, followed by /health or /check <username>.
