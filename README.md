@@ -221,11 +221,11 @@ In Amazon AWS, access the bucket you are utilizing for Umbrella log exports. Cli
 
 Give your lifecycle a rule, then click through until the Expiration tab.
 
-![umbrella_lifecycle1](images/aws_s3_lifecycle-1.png)
+![umbrella_lifecycle1](images/aws_s3_lifecycle_1.png)
 
 Check "Current version", check "Expire current version of object", and set the duration to 1 day. Click through and save the lifecycle rule.
 
-![umbrella_lifecycle2](images/aws_s3_lifecycle-2.png)
+![umbrella_lifecycle2](images/aws_s3_lifecycle_2.png)
 
 ## Run S3 Log Import<a name="umbrella-s3-import"/>
 
