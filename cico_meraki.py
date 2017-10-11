@@ -1,4 +1,8 @@
 import requests
+from gevent import monkey
+def stub(*args, **kwargs):  # pylint: disable=unused-argument
+    pass
+monkey.patch_all = stub
 import grequests
 import os
 import json
@@ -7,6 +11,7 @@ from urllib3.util.retry import Retry
 
 meraki_api_token = os.getenv("MERAKI_API_TOKEN")
 meraki_org = os.getenv("MERAKI_ORG")
+meraki_dashboard_map = os.getenv("MERAKI_DASHBOARD_MAP")
 header = {"X-Cisco-Meraki-API-Key": meraki_api_token}
 
 
@@ -16,6 +21,24 @@ def get_meraki_networks():
     netlist = requests.get(url, headers=header)
     netjson = json.loads(netlist.content.decode("utf-8"))
     return netjson
+
+
+def meraki_create_dashboard_link(linktype, linkname, displayval, urlappend):
+    shownet = displayval
+    if meraki_dashboard_map:
+        mapjson = json.loads(meraki_dashboard_map.replace("'", '"'))
+        if linktype in mapjson:
+            if linkname in mapjson[linktype]:
+                shownet = "<a href='" + mapjson[linktype][linkname]["baseurl"] + urlappend + "'>" + displayval + "</a>"
+
+    return shownet
+
+def meraki_dashboard_client_mod(netlink, cliid, clidesc):
+    showcli = clidesc
+    if netlink.find("/manage") >= 0:
+        showcli = netlink.split("/manage")[0] + "/manage/usage/list#c=" + cliid + "'>" + clidesc + "</a>"
+
+    return showcli
 
 
 def collect_url_list(jsondata, baseurl, attr1, attr2, battr1, battr2):
@@ -152,15 +175,15 @@ def decode_model(strmodel):
     # Decodes the Meraki model number into it's general type.
     outmodel = ""
     if "MX" in strmodel:
-        outmodel = "Security Appliance"
+        outmodel = "appliance"
     if "MS" in strmodel:
-        outmodel = "Switch"
+        outmodel = "switch"
     if "MR" in strmodel:
-        outmodel = "Wireless"
+        outmodel = "wireless"
     if "MV" in strmodel:
-        outmodel = "Camera"
+        outmodel = "camera"
     if "MC" in strmodel:
-        outmodel = "Phone"
+        outmodel = "phone"
 
     if outmodel == "":
         outmodel = strmodel[0:2]
@@ -231,7 +254,8 @@ def get_meraki_health(incoming_msg, rettype):
                         devicon = chr(0x2757) + chr(0xFE0F)
 
         totaldev += len(newnetlist[net])
-        retmsg += "<li>Network '" + net + "' has " + str(offdev) + " device(s) offline out of " + str(len(newnetlist[net])) + " device(s)." + devicon + "</li>"
+        shownet = meraki_create_dashboard_link("networks", net, net, "")
+        retmsg += "<li>Network '" + shownet + "' has " + str(offdev) + " device(s) offline out of " + str(len(newnetlist[net])) + " device(s)." + devicon + "</li>"
         offdev = 0
         devicon = ""
     retmsg += "</ul><b>" + str(totaloffdev) + " device(s) offline out of a total of " + str(totaldev) + " device(s).</b>"
@@ -265,7 +289,11 @@ def get_meraki_clients(incoming_msg, rettype):
                 for cli in netlist[net]["devices"][dev]["clients"]:
                     if not isinstance(cli, str):
                         if cli["description"] == client_id and "switchport" in cli:
-                            retmsg += "<i>Computer Name:</i> <a href='https://dashboard.meraki.com/manage/usage/list#c=" + cli["id"] + "'>" + cli["dhcpHostname"] + "</a><br>"
+                            devbase = netlist[net]["devices"][dev]["info"]
+                            showdev = meraki_create_dashboard_link("devices", devbase["mac"], devbase["name"], "?timespan=86400")
+                            showport = meraki_create_dashboard_link("devices", devbase["mac"], str(cli["switchport"]), "/ports/" + str(cli["switchport"]) + "?timespan=86400")
+                            showcli = meraki_dashboard_client_mod(showdev, cli["id"], cli["dhcpHostname"])
+                            retmsg += "<i>Computer Name:</i> " + showcli + "<br>"
 
                             if net in newsmlist:
                                 if "devices" in newsmlist[net]:
@@ -277,8 +305,7 @@ def get_meraki_clients(incoming_msg, rettype):
                             retmsg += "<i>IP:</i> " + cli["ip"] + "<br>"
                             retmsg += "<i>MAC:</i> " + cli["mac"] + "<br>"
                             retmsg += "<i>VLAN:</i> " + str(cli["vlan"]) + "<br>"
-                            devbase = netlist[net]["devices"][dev]["info"]
-                            retmsg += "<i>Connected To:</i> <a href='https://dashboard.meraki.com/manage/nodes/show/" + devbase["mac"] + "'>" + devbase["name"] + "</a> (" + devbase["model"] + "), Port " + str(cli["switchport"]) + "<br>"
+                            retmsg += "<i>Connected To:</i> " + showdev + " (" + devbase["model"] + "), Port " + showport + "<br>"
 
         return retmsg
 
