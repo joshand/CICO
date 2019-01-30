@@ -183,6 +183,7 @@ def get_meraki_http_info():
 
 
 dbjson = get_meraki_http_info()
+print("=======")
 print(json.dumps(dbjson))
 os.environ["MERAKI_DASHBOARD_MAP"] = str(dbjson)
 print("=======")

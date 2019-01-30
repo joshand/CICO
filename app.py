@@ -5,6 +5,7 @@ import cico_spark_call
 import cico_combined
 import cico_common
 import cico_umbrella
+import cico_a4e
 import sys
 
 # Retrieve required details from environment variables
@@ -31,8 +32,13 @@ if cico_common.spark_call_support():
 if cico_common.umbrella_support():
     bot.add_command('/umbrella-health', 'Get health of Umbrella envrionment.', cico_umbrella.get_umbrella_health_html)
     bot.add_command('/umbrella-check', 'Check Umbrella user status.', cico_umbrella.get_umbrella_clients_html)
+if cico_common.a4e_support():
+    bot.add_command('/a4e-health', 'Get health of AMP for Endpoints envrionment.', cico_a4e.get_a4e_health_html)
+    bot.add_command('/a4e-check', 'Check AMP for Endpoints user status.', cico_a4e.get_a4e_clients_html)
 bot.add_command('/health', 'Get health of entire environment.', cico_combined.get_health)
 bot.add_command('/check', 'Get user status.', cico_combined.get_clients)
+bot.add_command('health', '*Get health of entire environment.', cico_combined.get_health)
+bot.add_command('check', '*Get user status.', cico_combined.get_clients)
 
 # Run Bot
 bot.run(host='0.0.0.0', port=5000)

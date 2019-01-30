@@ -16,13 +16,13 @@ def parse_umbrella_logs():
     entries = ((stat[ST_CTIME], path)
                 for stat, path in entries if S_ISDIR(stat[ST_MODE]))
     for cdate, fdir in sorted(entries, reverse=True):
-        print(fdir, cdate)
+        #print(fdir, cdate)
         entries2 = (os.path.join(fdir, fn) for fn in os.listdir(fdir))
         entries2 = ((os.stat(path), path) for path in entries2)
         entries2 = ((stat[ST_CTIME], path)
                    for stat, path in entries2 if S_ISREG(stat[ST_MODE]))
         for cdate, fn in sorted(entries2, reverse=True):
-            print(fn, cdate)
+            #print(fn, cdate)
             with open(fn, 'rb') as fin:
                 data = io.BytesIO(fin.read())
 
@@ -85,7 +85,10 @@ def get_umbrella_clients(incoming_msg, rettype):
     client_id = cmdlist[len(cmdlist)-1]
 
     logdata = parse_umbrella_logs()
-    userbase = logdata["Users"][client_id]
+    if client_id in logdata["Users"]:
+        userbase = logdata["Users"][client_id]
+    else:
+        userbase = {}
 
     if rettype == "json":
         return userbase

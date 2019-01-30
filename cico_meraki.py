@@ -1,4 +1,5 @@
 import requests
+# https://github.com/kennethreitz/grequests/issues/103
 from gevent import monkey
 def stub(*args, **kwargs):  # pylint: disable=unused-argument
     pass
